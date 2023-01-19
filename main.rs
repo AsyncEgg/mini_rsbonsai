@@ -37,3 +37,6 @@ fn draw_base(mut stdout: Stdout,size_y: u16, base_type: u8) -> Result<()> {
         .queue(style::PrintStyledContent("\n \\                           / \n  \\_________________________/ \n  (_)                     (_)".with(Color::Rgb { r: (50), g: (50), b: (50) })))?;
   Ok(())
 }
+//Links
+//https://gitlab.com/jallbrit/cbonsai/-/blob/master/cbonsai.c
+//https://www.cyberciti.biz/media/new/cms/2021/01/Linux-Desktop-Fun-Bonsai-tree-generator-for-CLI-lovers.jpg
