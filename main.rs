@@ -99,6 +99,8 @@ fn main() {
 
 }
 
+//day1 0-95
+//day2 95-100
 
 //Notes
 //use queue! macro with crossterm
