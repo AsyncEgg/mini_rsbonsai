@@ -1,63 +1,94 @@
 use std::{io::{stdout, Write,Stdout}, thread, time};
 use crossterm::{
+    queue,
     ExecutableCommand, QueueableCommand,
     terminal, cursor, style::{self, Stylize, Color}, Result
 };
 
-struct Point {
-    x: u16,
-    y: u16,
+use std::env;
+
+enum BranchType {Trunk, ShootLeft, ShootRight, Dying, Dead}
+
+struct Config<'a>{
+	live: u16,
+	infinite: u16 ,
+	screensaver: u16,
+	print_tree: u16,
+	verbosity: u16,
+	life_start: u16,
+	multiplier: u16,
+	base_type: u16,
+	seed: u16,
+	leaves_size: u16,
+	target_branch_count: u16,
+
+	time_wait: f64,
+	time_step: f64,
+
+	message:&'a str,
+	leaves:&'a str,
 }
 
-fn main() -> Result<()> {
-    let CSL_SIZE_X = 50;
-    let CSL_SIZE_Y = 25;
-    {
-    let mut stdout = stdout();
+struct Counters {
+    branches: u16,
+    shoots: u16,
+    shoot_counter: u16,
+}
+
+fn branch(config: Config, stdout: Stdout, counters: Counters, max_y: u16, max_x: u16, life_start: u16) {
+
+}
+
+fn grow_tree(config: &Config<'_>, stdout: Stdout, mut counters: Counters) {
+    let (max_y, max_x): (u16, u16) = (50, 25);
+    let life_start: u16 = config.life_start;
+
+    branch(config, stdout, counters, max_y, max_x, life_start);
+}   
+
+fn main() {
+    let args: Vec<String> = env::args().collect();
+    dbg!(args);
+
     
-    stdout.execute(terminal::Clear(terminal::ClearType::All))?;
-    stdout.execute(cursor::Hide)?;
+    let config = Config{
+        live: 0,
+        infinite: 0 ,
+        screensaver: 0,
+        print_tree: 0,
+        verbosity: 0,
+        life_start: 32,
+        multiplier: 5,
+        base_type: 1,
+        seed: 0,
+        leaves_size: 0,
+        target_branch_count: 0,
+
+        time_wait: 4.0,
+        time_step: 0.03,
+
+        message: " ",
+        leaves: " ",
+    };    
     
-    draw_base(stdout,CSL_SIZE_Y,CSL_SIZE_X,1);
+    loop {
+    
+        let mut stdout = stdout();
+
+        let counters = Counters {
+            branches: 0,
+            shoots: 0,
+            shoot_counter: 0,
+        };
+
+        grow_tree(&config, stdout, counters)
     }
-    let mut stdout = stdout();
-    stdout
-      .queue(cursor::MoveTo(CSL_SIZE_X, CSL_SIZE_Y))?
-      .queue(style::PrintStyledContent("@@".with(Color::Rgb { r: (255), g: (255), b: (255) })))?;
-  Ok(())
+
 }
 
-fn draw_base(mut stdout: Stdout,screen_max_y: u16, screen_max_x: u16, base_type: u8) -> Result<()> {
-  //calculate where to draw base X
-  let base_pos_x = screen_max_x / 1;
-  
-  match base_type {
-    1 => stdout
-          .queue(cursor::MoveTo(2,screen_max_y-4))?
-          .queue(style::PrintStyledContent(":".with(Color::Rgb { r: (50), g: (50), b: (50) })))?
-          .queue(style::PrintStyledContent("___________".with(Color::Rgb { r: (100), g: (200), b: (0) })))?
-          .queue(style::PrintStyledContent("./~~~\\.".with(Color::Rgb { r: (100), g: (0), b: (0) })))?
-          .queue(style::PrintStyledContent("___________".with(Color::Rgb { r: (100), g: (200), b: (0) })))?
-          .queue(style::PrintStyledContent(":".with(Color::Rgb { r: (50), g: (50), b: (50) })))?
-          .queue(cursor::MoveTo(2,screen_max_y-3))?                                                     
-          .queue(style::PrintStyledContent(" \\                           / \n  \\_________________________/ \n  (_)                     (_)"
-              .with(Color::Rgb { r: (50), g: (50), b: (50) })))?, 
-    2 => stdout.
-      queue(cursor::MoveTo(base_pos_x,screen_max_y-4))?
-      .queue(style::PrintStyledContent(":".with(Color::Rgb { r: (50), g: (50), b: (50) })))?
-      .queue(style::PrintStyledContent("___________".with(Color::Rgb { r: (100), g: (200), b: (0) })))?
-      .queue(style::PrintStyledContent("./~~~\\.".with(Color::Rgb { r: (100), g: (0), b: (0) })))?
-      .queue(style::PrintStyledContent("___________".with(Color::Rgb { r: (100), g: (200), b: (0) })))?
-      .queue(style::PrintStyledContent(":".with(Color::Rgb { r: (50), g: (50), b: (50) })))?
-      .queue(style::PrintStyledContent(" (           ) \n  (_________)  "
-          .with(Color::Rgb { r: (50), g: (50), b: (50) })))?, 
-          
-    _ => stdout.queue(cursor::MoveTo(0,0))?,
-  };
-  Ok(())
-}
 
-//fn draw_message(mut stdout: Stdout, message: &str)
-//Links
-//https://gitlab.com/jallbrit/cbonsai/-/blob/master/cbonsai.c
-//https://www.cyberciti.biz/media/new/cms/2021/01/Linux-Desktop-Fun-Bonsai-tree-generator-for-CLI-lovers.jpg
+//Notes
+//use queue! macro with crossterm
+
+//mvwprintw format
+//mvwprintw(Window, Line, Column, Format, [Argument ...])
