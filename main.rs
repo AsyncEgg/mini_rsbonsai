@@ -35,15 +35,28 @@ struct Counters {
     shoot_counter: u16,
 }
 
-fn branch(config: Config, stdout: Stdout, counters: Counters, max_y: u16, max_x: u16, life_start: u16) {
+fn branch(config: &Config<'_>, stdout: Stdout, mut counters:Counters, max_y: u16, max_x: u16, branch_type: BranchType::Trunk ,mut life: u16) {
+    counters.branches+=1;
+    let dx: u16 = 0;
+    let dy: u16 = 0;
+    let age: u16 = 0;
+    let shoot_counter = config.multiplier;
+
+    while life > 0 {
+      life -= 1;
+      let age = config.life_start - life;
+
+      //set_deltas()
+      
+    }
 
 }
 
-fn grow_tree(config: &Config<'_>, stdout: Stdout, mut counters: Counters) {
+fn grow_tree(config: &Config, stdout: Stdout, mut counters: Counters) {
     let (max_y, max_x): (u16, u16) = (50, 25);
     let life_start: u16 = config.life_start;
 
-    branch(config, stdout, counters, max_y, max_x, life_start);
+    branch(config, stdout, counters, max_y, max_x life_start);
 }   
 
 fn main() {
