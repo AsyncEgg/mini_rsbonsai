@@ -33,9 +33,19 @@ struct Counters {
     branches: u16,
     shoots: u16,
     shoot_counter: u16,
+
+    
 }
 
-fn branch(config: &Config<'_>, stdout: Stdout, mut counters:Counters, max_y: u16, max_x: u16, branch_type: BranchType::Trunk ,mut life: u16) {
+fn set_deltas(life: u16, age: u16, multiplier: u16) -> (u16,u16){
+    let dx: u16 = 0;
+    let dx: u16 = 0;
+    let dice: u16;
+
+
+}
+
+fn branch(config: &Config<'_>, stdout: Stdout, mut counters:Counters, max_y: u16, max_x: u16,branch_type: BranchType ,mut life: u16) {
     counters.branches+=1;
     let dx: u16 = 0;
     let dy: u16 = 0;
@@ -45,7 +55,7 @@ fn branch(config: &Config<'_>, stdout: Stdout, mut counters:Counters, max_y: u16
     while life > 0 {
       life -= 1;
       let age = config.life_start - life;
-
+      
       //set_deltas()
       
     }
@@ -55,8 +65,12 @@ fn branch(config: &Config<'_>, stdout: Stdout, mut counters:Counters, max_y: u16
 fn grow_tree(config: &Config, stdout: Stdout, mut counters: Counters) {
     let (max_y, max_x): (u16, u16) = (50, 25);
     let life_start: u16 = config.life_start;
+    
+    counters.shoots = 0;
+    counters.branches = 0;
+    //counters.shoot_counter = 
 
-    branch(config, stdout, counters, max_y, max_x life_start);
+    branch(config, stdout, counters, max_y - 1, max_x / 2, life_start);
 }   
 
 fn main() {
