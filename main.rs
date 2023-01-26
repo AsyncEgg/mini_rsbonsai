@@ -6,6 +6,7 @@ use crossterm::{
 };
 
 use std::env;
+use rand::Rng;
 
 enum BranchType {Trunk, ShootLeft, ShootRight, Dying, Dead}
 
@@ -37,14 +38,23 @@ struct Counters {
     
 }
 
+fn rand() -> i16 {
+    rand::thread_rng().gen_range(-1..=1)
+}
+
+
 fn set_deltas(branch_type: BranchType, life: u16, age: u16, multiplier: u16) -> (u16,u16){
-    let dx: u16 = 0;
-    let dy: u16 = 0;
+    let mut dx: i16 = 0;
+    let mut dy: i16 = 0;
     let dice: u16;
 
     match branch_type {
       trunk => {
-        if (age <= 2 || life < 4) {
+        if age <= 2 || life < 4 {
+            dy = 0;
+            dx = rand().try_into().unwrap();
+        } else if age < (multiplier * 3) {
+            if (age)
         }
       },
       _ => ()
