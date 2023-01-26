@@ -124,7 +124,7 @@ fn set_deltas(branch_type: BranchType, life: u16, age: u16, multiplier: u16) -> 
     (dx,dy)
 }
 
-fn branch(config: &Config<'_>, stdout: Stdout, mut counters:Counters, max_y: u16, max_x: u16,branch_type: BranchType ,mut life: u16) {
+fn branch(config: &Config<'_>, mut stdout: Stdout, mut counters:Counters, mut y: u16, mut x: u16,branch_type: BranchType ,mut life: u16) {
     counters.branches+=1;
     let dx: u16 = 0;
     let dy: u16 = 0;
@@ -136,7 +136,12 @@ fn branch(config: &Config<'_>, stdout: Stdout, mut counters:Counters, max_y: u16
       let age = config.life_start - life;
       
       set_deltas(BranchType::Trunk, life, age, config.multiplier);
-      
+      queue!(stdout, cursor::MoveTo(x,y)).unwrap();
+      queue!(stdout, style::Print(" ")).unwrap();
+
+      x += dx;
+	  y += dy;
+
     }
 
 }
