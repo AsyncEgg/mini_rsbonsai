@@ -33,17 +33,15 @@ struct Config<'a>{
 struct Counters {
     branches: u16,
     shoots: u16,
-    shoot_counter: u16,
-
-    
+    shoot_counter: u16,   
 }
 
-fn rand() -> i16 {
-    rand::thread_rng().gen_range(-1..=1)
+fn roll(modular: u16) -> u16 {
+    rand::thread_rng().gen()
 }
 
 
-fn set_deltas(branch_type: BranchType, life: u16, age: u16, multiplier: u16) -> (u16,u16){
+fn set_deltas(branch_type: BranchType, life: u16, age: u16, multiplier: u16) -> (i16,i16){
     let mut dx: i16 = 0;
     let mut dy: i16 = 0;
     let dice: u16;
@@ -52,14 +50,18 @@ fn set_deltas(branch_type: BranchType, life: u16, age: u16, multiplier: u16) -> 
       trunk => {
         if age <= 2 || life < 4 {
             dy = 0;
-            dx = rand().try_into().unwrap();
+            dx = rand::thread_rng().gen_range(-1..=1).try_into().unwrap();
         } else if age < (multiplier * 3) {
-            if (age)
+
+            if (age % (multiplier / 2)) == 0 {dy = -1} 
+                else {dy = 0} 
+            
+            dice = roll(10);
         }
       },
       _ => ()
     }
-    (0,0)
+    (dx,dy)
 }
 
 fn branch(config: &Config<'_>, stdout: Stdout, mut counters:Counters, max_y: u16, max_x: u16,branch_type: BranchType ,mut life: u16) {
