@@ -36,30 +36,90 @@ struct Counters {
     shoot_counter: u16,   
 }
 
-fn roll(modular: u16) -> u16 {
-    rand::thread_rng().gen()
+fn roll(modular: i32) -> i32 {
+    rand::thread_rng().gen::<i32>() % modular
 }
 
 
-fn set_deltas(branch_type: BranchType, life: u16, age: u16, multiplier: u16) -> (i16,i16){
-    let mut dx: i16 = 0;
-    let mut dy: i16 = 0;
-    let dice: u16;
-
+fn set_deltas(branch_type: BranchType, life: u16, age: u16, multiplier: u16) -> (i32,i32) {
+    let mut dx: i32 = 0;
+    let mut dy: i32 = 0;
+    let mut dice: i32;
+    //enum BranchType {Trunk, ShootLeft, ShootRight, Dying, Dead}
     match branch_type {
-      trunk => {
+
+      BranchType::Trunk => {
         if age <= 2 || life < 4 {
             dy = 0;
-            dx = rand::thread_rng().gen_range(-1..=1).try_into().unwrap();
+            dx = roll(2);
         } else if age < (multiplier * 3) {
 
             if (age % (multiplier / 2)) == 0 {dy = -1} 
                 else {dy = 0} 
             
             dice = roll(10);
+            if dice == 0 {dx = -2}
+                else if dice >= 1 && dice <= 3 {dx = -1}
+                else if dice >= 4 && dice <= 5 {dx = 0}
+                else if dice >= 6 && dice <= 8 {dx = 1}
+                else if dice >= 9 && dice <= 9 {dx = 2}
+        } else {
+            dice = roll(10);
+            if dice > 2 {dy = -1}
+                else {dy = 0}
+            //i think rand(c) and roll(rust) have the same functionality 
+            //if shit breaks (in the trunk) oopsie look here first
+            dx = roll(3) - 1;
         }
       },
-      _ => ()
+      BranchType::ShootLeft => {
+        dice = roll(0);
+		if dice >= 0 && dice <= 1 {dy = -1}
+            else if dice >= 2 && dice <= 7 {dy = 0}
+            else if dice >= 8 && dice <= 9 {dy = 1}
+
+		dice = roll(10);
+		if dice >= 0 && dice <=1 {dx = -2}
+            else if dice >= 2 && dice <= 5 {dx = -1}
+            else if dice >= 6 && dice <= 8 {dx = 0}
+            else if dice == 9 {dx = 1}
+      },
+      BranchType::ShootRight => {
+        dice = roll(10);
+		if dice >= 0 && dice <= 1 {dy = -1}
+            else if dice >= 2 && dice <= 7 {dy = 0}
+            else if dice >= 8 && dice <= 9 {dy = 1}
+
+		dice = roll(10);
+		if dice >= 0 && dice <=1 {dx = 2}
+            else if dice >= 2 && dice <= 5 {dx = 1}
+            else if dice >= 6 && dice <= 8 {dx = 0}
+            else if dice == 9 {dx = -1}
+      },
+      BranchType::Dying => {
+        dice = roll( 10);
+		if dice >= 0 && dice <=1 {dy = -1}
+            else if dice >= 2 && dice <= 8 {dy = 0}
+            else if dice == 9 {dy = 1}
+
+        dice = roll( 15);
+        if dice >= 0 && dice <=0 {dx = -3}
+            else if dice >= 1 && dice <= 2 {dx = -2}
+            else if dice >= 3 && dice <= 5 {dx = -1}
+            else if dice >= 6 && dice <= 8 {dx = 0}
+            else if dice >= 9 && dice <= 11 {dx = 1}
+            else if dice >= 12 && dice <= 13 {dx = 2}
+            else if dice == 14 {dx = 3}
+      },
+      BranchType::Dead => {
+        dice = roll(10);
+		if dice >= 0 && dice <= 2 {dy = -1}
+		else if dice >= 3 && dice <= 6 {dy = 0}
+		else if dice >= 7 && dice <= 9 {dy = 1}
+        //might break or not, i think its like c's rand just reusing function for fun
+		dx = roll(3) - 1;
+
+      }
     }
     (dx,dy)
 }
@@ -95,7 +155,6 @@ fn grow_tree(config: &Config, stdout: Stdout, mut counters: Counters) {
 fn main() {
     let args: Vec<String> = env::args().collect();
     dbg!(args);
-
     
     let config = Config{
         live: 0,
