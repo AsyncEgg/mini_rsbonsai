@@ -126,8 +126,8 @@ fn set_deltas(branch_type: BranchType, life: u16, age: u16, multiplier: u16) -> 
 
 fn branch(config: &Config<'_>, mut stdout: Stdout, mut counters:Counters, mut y: u16, mut x: u16,branch_type: BranchType ,mut life: u16) {
     counters.branches+=1;
-    let dx: u16 = 0;
-    let dy: u16 = 0;
+    let mut dx: u16 = 0;
+    let mut dy: u16 = 0;
     let age: u16 = 0;
     let shoot_counter = config.multiplier;
 
@@ -136,24 +136,29 @@ fn branch(config: &Config<'_>, mut stdout: Stdout, mut counters:Counters, mut y:
       let age = config.life_start - life;
       
       set_deltas(BranchType::Trunk, life, age, config.multiplier);
+
+      let max_y = 25;
+      if dy > 0 && y  > (max_y - 2) {dy -= 1}
+      
       queue!(stdout, cursor::MoveTo(x,y)).unwrap();
-      queue!(stdout, style::Print(" ")).unwrap();
+      queue!(stdout, style::Print("%")).unwrap();
 
       x += dx;
-	  y += dy;
+	    y += dy;
 
     }
 
 }
 
-fn grow_tree(config: &Config, stdout: Stdout, mut counters: Counters) {
+fn grow_tree(config: &Config, mut stdout: Stdout, mut counters: Counters) {
     let (max_y, max_x): (u16, u16) = (50, 25);
     let life_start: u16 = config.life_start;
     
     counters.shoots = 0;
     counters.branches = 0;
-    //counters.shoot_counter = 
 
+    //counters.shoot_counter = 
+    stdout.flush().unwrap();
     branch(config, stdout, counters, max_y - 1, max_x / 2,BranchType::Trunk, life_start);
 }   
 
@@ -180,17 +185,26 @@ fn main() {
         message: " ",
         leaves: " ",
     };    
-    
+
+    {
+    let mut stdout = stdout();
+    stdout.execute(terminal::Clear(terminal::ClearType::All)).unwrap();
+    stdout.execute(cursor::Hide).unwrap();
+    }
     loop {
     
         let mut stdout = stdout();
-
+        
+      
         let counters = Counters {
             branches: 0,
             shoots: 0,
             shoot_counter: 0,
         };
 
+        queue!(stdout, cursor::MoveTo(20,20)).unwrap();
+        queue!(stdout, style::Print("hi")).unwrap();
+      
         grow_tree(&config, stdout, counters)
     }
 
