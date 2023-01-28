@@ -124,7 +124,7 @@ fn set_deltas(branch_type: BranchType, life: u16, age: u16, multiplier: u16) -> 
     (dx,dy)
 }
 
-fn branch(config: &Config<'_>, mut stdout: Stdout, mut counters:Counters, mut y: u16, mut x: u16,branch_type: BranchType, mut life: u16) {
+fn branch(config: &Config<'_>, mut stdout:&Stdout, mut counters:Counters, mut y: u16, mut x: u16,branch_type: BranchType, mut life: u16) {
     counters.branches+=1;
     let mut dx: u16 = 0;
     let mut dy: u16 = 0;
@@ -139,12 +139,14 @@ fn branch(config: &Config<'_>, mut stdout: Stdout, mut counters:Counters, mut y:
 
       let max_y = 25;
       if dy > 0 && y  > (max_y - 2) {dy -= 1}
-      
+
+
+      let branch_counters = Counters { branches: (counters.branches), shoots: (counters.shoots), shoot_counter: (counters.shoot_counter) };
       if life < 3 {
-        branch(config, stdout, counters, y, x, BranchType::Dead, life)
+        branch(config, &stdout, branch_counters , y, x, BranchType::Dead, life)
       }
 
-      else if BranchType::Trunk == Trunk && life < (config.multiplier + 2) {
+      else if matches!(BranchType::Trunk, branch_type) && life < (config.multiplier + 2) {
           
       }
 
@@ -167,7 +169,8 @@ fn grow_tree(config: &Config, mut stdout: Stdout, mut counters: Counters) {
 
     //counters.shoot_counter = 
     stdout.flush().unwrap();
-    branch(config, stdout, counters, max_y - 1, max_x / 2,BranchType::Trunk, life_start);
+   
+    branch(config, &stdout, counters, max_y - 1, max_x / 2,BranchType::Trunk, life_start);
 }   
 
 fn main() {
@@ -217,7 +220,6 @@ fn main() {
     }
 
 }
-
 //day1 0-95
 //day2 95-100
 
