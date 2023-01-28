@@ -114,8 +114,8 @@ fn set_deltas(branch_type: BranchType, life: u16, age: u16, multiplier: u16) -> 
       BranchType::Dead => {
         dice = roll(10);
 		if dice >= 0 && dice <= 2 {dy = -1}
-		else if dice >= 3 && dice <= 6 {dy = 0}
-		else if dice >= 7 && dice <= 9 {dy = 1}
+            else if dice >= 3 && dice <= 6 {dy = 0}
+            else if dice >= 7 && dice <= 9 {dy = 1}
         //might break or not, i think its like c's rand just reusing function for fun
 		dx = roll(3) - 1;
 
@@ -124,7 +124,7 @@ fn set_deltas(branch_type: BranchType, life: u16, age: u16, multiplier: u16) -> 
     (dx,dy)
 }
 
-fn branch(config: &Config<'_>, mut stdout:&Stdout, mut counters:Counters, mut y: u16, mut x: u16,branch_type: BranchType, mut life: u16) {
+fn branch(config: &Config<'_>, mut stdout:&Stdout, mut counters:&Counters, mut y: u16, mut x: u16,branch_type: BranchType, mut life: u16) {
     counters.branches+=1;
     let mut dx: u16 = 0;
     let mut dy: u16 = 0;
@@ -141,14 +141,20 @@ fn branch(config: &Config<'_>, mut stdout:&Stdout, mut counters:Counters, mut y:
       if dy > 0 && y  > (max_y - 2) {dy -= 1}
 
 
-      let branch_counters = Counters { branches: (counters.branches), shoots: (counters.shoots), shoot_counter: (counters.shoot_counter) };
+      let branch_counters = &Counters { branches: (counters.branches), shoots: (counters.shoots), shoot_counter: (counters.shoot_counter) };
+      
       if life < 3 {
         branch(config, &stdout, branch_counters , y, x, BranchType::Dead, life)
       }
 
       else if matches!(BranchType::Trunk, branch_type) && life < (config.multiplier + 2) {
-          
+        branch(config,&stdout,branch_counters,y,x, BranchType::Dying, life)
       }
+
+      else if (matches!(BranchType::ShootLeft, branch_type) || matches!(BranchType::ShootRight, branch_type)) && life < (config.multiplier + 2)  {
+        branch(config, stdout, counters, y, x, BranchType::Dying, life)
+      }
+    
 
       queue!(stdout, cursor::MoveTo(x,y)).unwrap();
       queue!(stdout, style::Print("%")).unwrap();
@@ -170,7 +176,7 @@ fn grow_tree(config: &Config, mut stdout: Stdout, mut counters: Counters) {
     //counters.shoot_counter = 
     stdout.flush().unwrap();
    
-    branch(config, &stdout, counters, max_y - 1, max_x / 2,BranchType::Trunk, life_start);
+    branch(config, &stdout, &counters, max_y - 1, max_x / 2,BranchType::Trunk, life_start);
 }   
 
 fn main() {
