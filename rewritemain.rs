@@ -48,6 +48,20 @@ fn set_deltas(branch_type: BranchType, life: i32, age: i32, multiplier: i32, lif
     (dx,dy)
 }
 
+fn branch(branch_type: BranchType,life: u16) {
+  
+  if life > 0 {
+    draw(10,10,&life.to_string());
+  }
+}
+
+fn draw(x: u16, y: u16, character: &str) {
+  let mut stdout = stdout();
+  queue!(stdout, cursor::MoveTo(x.try_into().unwrap(),y.try_into().unwrap())).unwrap();
+  queue!(stdout, style::Print(character)).unwrap();
+  
+  stdout.flush().unwrap();
+}
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -65,18 +79,10 @@ fn main() {
     let life_length = 98;
     let mut current_life = life_length;
     while current_life > 0 {
-        if current_life < life_length && current_life > life_length - life_length/4 {
-            (dx, dy) = set_deltas(BranchType::Trunk, current_life, life_length-current_life, 100,life_length);
-        } else {
-            (dx,dy)= (0,0)
-        }
-        x += dx; y += dy;
+        branch(BranchType::Trunk, current_life);
         current_life -= 1;
-
-        queue!(stdout, cursor::MoveTo(x.try_into().unwrap(),y.try_into().unwrap())).unwrap();
-        queue!(stdout, style::Print("/")).unwrap();
+      
         
-        stdout.flush().unwrap();
         thread::sleep(time::Duration::from_millis(50));
     }
 }
